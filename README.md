@@ -124,11 +124,8 @@ Golang使用的日志库
 
 <b>6. 其他说明</b>
 	作者: heiyeluren
-    代码: http://heiyeluren.googlecode.com
 	博客: http://blog.csdn.net/heiyeshuwu
 	微博: http://weibo.com/heiyeluren
-	微信: heiyeluren2012
-
 
 
 </pre>
