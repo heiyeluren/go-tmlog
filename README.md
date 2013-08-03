@@ -6,7 +6,7 @@ Golang implement logging library (the require golang &lt; = 1.0)
 Golang使用的日志库
 
 
-最后更新：2013/8/3 v1.0.0
+最后更新：2013/8/3 v1.0.0 <br />
 下载地址：<a href="http://heiyeluren.googlecode.com/files/go-tmlog-v1.0.0.zip">Download</a>
 
 
