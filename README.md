@@ -1,7 +1,7 @@
 go-tmlog
 ========
 
-Golang implement logging library (the require golang &lt; = 1.0)
+Golang implement logging library (the require golang >= 1.0)
 
 Golang使用的日志库
 
