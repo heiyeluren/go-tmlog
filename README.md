@@ -1,31 +1,45 @@
 go-tmlog
 ========
 
-Golang implement logging library (the require golang &lt; = 1.0)
+Golang implement logging library (the require golang >= 1.0)
+
+Golang使用的日志库
 
 
+最后更新：2013/8/3 v1.0.0 <br />
+下载地址：<a href="http://heiyeluren.googlecode.com/files/go-tmlog-v1.0.0.zip">Download</a>
 
-[ Golang日志库: go-tmlog 使用说明文件 ]
+
+<pre>
+
+<b>[ Golang日志库: go-tmlog 使用说明文件 ]</b>
 
 @author: heiyeluren
 @date: 2013/8/3
 
 
-1. 基本架构:
-   a. 采用 日志输入(客户端) -> 日志输出(服务器端) 的架构，日志输入可以任意调用，日志输出是一个单独协程在工作,
+<b>1. 基本架构:</b>
+   a. 采用 日志输入(客户端) -> 日志输出(服务器端) 的架构，日志输入可以任意调用，日志输出是一个
+      单独协程在工作,
    b. 能够保证日志保证时序性，并且保证客户端可以无限量的写入日志，不用担心阻塞而影响性能.
-   c. 应用场景: 适合高性能日志打印的场合，按照测试，能够在每秒1万次请求的后端服务上进行日志打印，不会对性能有太多影响
+   c. 应用场景: 适合高性能日志打印的场合，按照测试，能够在每秒1万次请求的后端服务上进行日志打印，
+      不会对性能有太多影响
 
-2. 主要功能:
-   a. 日志类型: 可以打印5种类型(notice/trace/debug/warning/fatal)的日志，并且代码很容易新增类型，不过基本够用了, 同时可以配置里定制那些日志类型需要记录, 一般推荐最少最少记录 notice/warning/fatal 三种日志
-   b. 日志文件: 不同日志类型可以单独输出到指定日志文件中, 一般建议 notice/trace/debug 放一个日志文件, warning/fatal 放一个日志文件
+
+<b>2. 主要功能:</b>
+   a. 日志类型: 可以打印5种类型(notice/trace/debug/warning/fatal)的日志，并且代码很容易新增类型，
+                不过基本够用了, 同时可以配置里定制那些日志类型需要记录, 一般推荐最少最少记录 
+                notice/warning/fatal 三种日志
+   b. 日志文件: 不同日志类型可以单独输出到指定日志文件中, 一般建议 notice/trace/debug 放一个日志文件, 
+                warning/fatal 放一个日志文件
    c. 日志切割: 支持按照 天/小时/10分钟 三种粒度自动进行日志文件切割，方便控制日志文件大小
-   d. 日志刷盘: 可以指定日志刷盘的时间, 缺省1秒，建议不超过3秒; 如果当前日志达到缓存90%占用，会自动刷盘，保证不会阻塞写日志操作
+   d. 日志刷盘: 可以指定日志刷盘的时间, 缺省1秒，建议不超过3秒; 如果当前日志达到缓存90%占用，会自动
+                刷盘，证不会阻塞写日志操作
    e. 调试模式: 支持调试模式，可以在运行中在终端输出一些信息，方便监测
 
 
-3. 配置说明
-  #--------------
+<b>3. 配置说明</b>
+    #--------------
 	#日志操作配置
 	#--------------
 
@@ -56,7 +70,7 @@ Golang implement logging library (the require golang &lt; = 1.0)
 	log_level = 31
  
 
-4. 调用示例 (具体可以参考源码中的main.go的调用)
+<b>4. 调用示例 </b> (具体可以参考源码中的main.go的调用)
 	================= 启动日志工作协程代码 =================
     import "heiyeluren/tmlog"
 
@@ -104,7 +118,7 @@ Golang implement logging library (the require golang &lt; = 1.0)
         logHandle3.Warning("[logger=logHandle3 msg='The warning message is test']")
     }    
 
-5. 运行测试代码
+<b>5. 运行测试代码</b>
 	更多测试使用案例可以参考源码中的 main.go 文件，同时可以直接make运行该代码
 	下载代码，然后执行如下脚本运行测试代码：
 	Windows: cd 代码目录 && make && bin\test.exe
@@ -114,11 +128,10 @@ Golang implement logging library (the require golang &lt; = 1.0)
 	
 	注意：以上操作必须保证安装了go 1.0以上的编译器的基础之上，同时能够正常访问go命令的情况下才能正常运行。如果不了解如何使用golang编译工具，请预先学习一下。
 
-6. 其他说明
+<b>6. 其他说明</b>
 	作者: heiyeluren
-    代码: http://heiyeluren.googlecode.com
 	博客: http://blog.csdn.net/heiyeshuwu
 	微博: http://weibo.com/heiyeluren
-	微信: heiyeluren2012
 
 
+</pre>
