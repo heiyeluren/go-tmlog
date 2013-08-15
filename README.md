@@ -75,7 +75,7 @@ Golang implement logging library (the require golang &lt; = 1.0)
         "log_level":             "31",
     }
     // 启动 tmlog 工作协程, 可以理解为tmlog的服务器端
-    go tmlog.Log_Run(logConf)
+    tmlog.Log_Run(logConf)
 
 
 	================= 打印日志代码调用示例 =================

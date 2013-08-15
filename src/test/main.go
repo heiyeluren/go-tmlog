@@ -49,7 +49,7 @@ func main() {
         "log_level":             "31",
     }
     // 启动 tmlog 工作协程, 可以理解为tmlog的服务器端
-    go tmlog.Log_Run(logConf)
+    tmlog.Log_Run(logConf)
 
     /**
      * 以下为tmlog前端实际打印日志工作代码

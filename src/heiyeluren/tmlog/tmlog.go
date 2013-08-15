@@ -12,6 +12,7 @@
  *     2013/7/04 refactor all code
  *     2013/7/10 add log_level operate
  *     2013/8/03 update comment
+ * 	   2013/8/15 update Log_Run() code, modified call Log_Run operating mode
  *
  * @feature list
  *   1. 基本架构:
@@ -103,7 +104,7 @@ log_level = 31
         "log_level":             "31",
     }
     // 启动 tmlog 工作协程, 可以理解为tmlog的服务器端
-    go tmlog.Log_Run(logConf)
+    tmlog.Log_Run(logConf)
 
 
 ================= 打印日志代码调用示例 =================
@@ -552,7 +553,7 @@ var G_Flush_Lock *sync.Mutex = &sync.Mutex{}
         "log_level":             "31",
     }
     // 启动 tmlog 工作协程, 可以理解为tmlog的服务器端
-    go tmlog.Log_Run(logConf)
+    tmlog.Log_Run(logConf)
 
 * 注意：
 * 需要传递进来的配置是有要求的，必须是包含这些配置选项，否则会报错
@@ -571,57 +572,60 @@ func Log_Run(RunConfigMap map[string]string) {
     //调用初始化操作，全局只运行一次
     G_Once_V.Do(Log_Init)
 
-    //永远循环等待channel的日志数据
-    var log_msg Log_Msg_T
-    //var num int64
-    for {
+    //内部日志工作协程
+    go func() {
+        //永远循环等待channel的日志数据
+        var log_msg Log_Msg_T
+        //var num int64
+        for {
 
-        //监控是否有可以日志可以存取
-        select {
-        case log_msg = <-G_Log_V.LogChan:
-            if Log_Is_Debug() {
-                Log_Debug_Print("In select{ log_msg = <-G_Log_V.LogChan, Log_Write_File() } G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+            //监控是否有可以日志可以存取
+            select {
+            case log_msg = <-G_Log_V.LogChan:
+                if Log_Is_Debug() {
+                    Log_Debug_Print("In select{ log_msg = <-G_Log_V.LogChan, Log_Write_File() } G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+                }
+
+                Log_Write_File(log_msg)
+
+                //if Log_Is_Debug() {
+                //    Log_Debug_Print("G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+                //}
+            default:
+                //breakLogChan长度
+                //println("In Default ", num)
+                //打印目前G_Log_V的数据
+                if Log_Is_Debug() {
+                    Log_Debug_Print("In select{ default }, G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+                }
+                time.Sleep(time.Duration(G_Log_V.LogFlushTimer) * time.Millisecond)
             }
 
-            Log_Write_File(log_msg)
+            //监控刷盘timer
+            //log_timer := time.NewTimer(time.Duration(G_Log_V.LogFlushTimer) * time.Millisecond)
+            select {
+            //超过设定时间开始检测刷盘（保证不会频繁写日志操作）
+            //case <-log_timer.C:
+            //    log_timer.Stop()
+            //    break
+            //如果收到刷盘channel的信号则刷盘且全局标志状态为
+            case <-G_Log_V.FlushLogChan:
+                if Log_Is_Debug() {
+                    Log_Debug_Print("In select{ G_Flush_Log_Flag }, G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+                }
 
-            //if Log_Is_Debug() {
-            //    Log_Debug_Print("G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
-            //}
-        default:
-            //breakLogChan长度
-            //println("In Default ", num)
-            //打印目前G_Log_V的数据
-            if Log_Is_Debug() {
-                Log_Debug_Print("In select{ default }, G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
+                G_Flush_Lock.Lock()
+                G_Flush_Log_Flag = false
+                G_Flush_Lock.Unlock()
+
+                //log_timer.Stop()
+                break
+            default:
+                break
             }
-            time.Sleep(time.Duration(G_Log_V.LogFlushTimer) * time.Millisecond)
+
         }
-
-        //监控刷盘timer
-        //log_timer := time.NewTimer(time.Duration(G_Log_V.LogFlushTimer) * time.Millisecond)
-        select {
-        //超过设定时间开始检测刷盘（保证不会频繁写日志操作）
-        //case <-log_timer.C:
-        //    log_timer.Stop()
-        //    break
-        //如果收到刷盘channel的信号则刷盘且全局标志状态为
-        case <-G_Log_V.FlushLogChan:
-            if Log_Is_Debug() {
-                Log_Debug_Print("In select{ G_Flush_Log_Flag }, G_Log_V.LogChan Length:", len(G_Log_V.LogChan))
-            }
-
-            G_Flush_Lock.Lock()
-            G_Flush_Log_Flag = false
-            G_Flush_Lock.Unlock()
-
-            //log_timer.Stop()
-            break
-        default:
-            break
-        }
-
-    }
+    }()
 }
 
 /**
