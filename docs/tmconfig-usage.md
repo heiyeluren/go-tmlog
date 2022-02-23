@@ -3,13 +3,23 @@
 
 
 ```go
+/**
+ * @file: tmconfig配置文件解析库功能测试
+ *
+ * @desc:
+ *　	测试基本的tmconfig库的工作情况是否正常
+ *
+ * @author: heiyeluren
+ *
+ *
+ */
 package main
 
 import (
     "flag"
     "fmt"
     "utility/configs"
-    tmconfig "github.com/heiyeluren/go-tmlog/configs"
+    tmconfig "github.com/heiyeluren/go-tmlog/tmconfig"
 )
 
 // 配置文件对象初始化
@@ -22,7 +32,7 @@ func newConfig() *tmconfig.Config {
         panic("usage: ./app-bin -f etc/tmlog.conf")
     }
     //调用 tmconfig 读取配置文件
-    Config := configs.NewConfig()
+    Config := tmconfig.NewConfig()
     if err := Config.Load(F); err != nil {
         panic(err.Error())
     }
@@ -51,6 +61,8 @@ func main() {
   //输出对象
   fmt.Println(Config)  
 }
+
+
 
 
 ```
