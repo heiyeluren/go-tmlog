@@ -17,7 +17,7 @@ Golang implement logging library (the require golang >= 1.0)
 package main
 
 import (
-    "github.com/heiyeluren/go-tmlog"
+    tmlog "github.com/heiyeluren/go-tmlog"
     "runtime"
     "time"
 )
