@@ -1,3 +1,13 @@
+
+【目录】
+
+ - 高性能Go日志库 - go-tmlog
+ - 高性能配置文件解析库 - tmconfig
+
+
+
+<br />
+
 # 高性能Go日志库 - go-tmlog
 
 
@@ -107,6 +117,15 @@ func main() {
 
 <br />
 
+# 高性能配置文件解析库 - tmconfig
+
+### [tmconfig使用说明文档](https://github.com/heiyeluren/go-tmlog/blob/master/docs/tmconfig-usage.md)
+
+### [tmconfig源码](https://github.com/heiyeluren/go-tmlog/blob/master/tmconfig/tmconfig.go)
+
+
+<br />
+<br />
 
 ## 问题反馈和联系
 
