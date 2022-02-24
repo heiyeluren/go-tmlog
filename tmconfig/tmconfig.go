@@ -22,6 +22,7 @@ import (
     "strings"
 )
 
+// 存储全局配置信息
 var G_TMCONFIG map[string]map[string]string
 
 // 内指定配置文件路径
@@ -79,12 +80,15 @@ func ParseConf() (err error) {
     }
 
     //默认的配置文件路径
-    path := "../conf/conf.ini"
+    path := "conf/conf.ini"
     return parseFile(path)
 }
 
 // 获取整个section的配置
-func GetSection(section string) map[string]string {
+func GetSection(section string) (map[string]string, err error) {
+    if len(G_TMCONFIG) == 0 {
+        return nil
+    }
     if cfm, ok := G_TMCONFIG[section]; ok {
         return cfm
     }
