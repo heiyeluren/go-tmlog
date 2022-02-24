@@ -6,124 +6,97 @@
  * @date: 2013/6/24
  * @history:
  *     2013/6/24 created file
+ *     2022/2/24
  */
  
  
 package tmconfig
 
+// 1、所有配置加载到内存，
+// 2、并推送到所有模块
+// 3、配置内容实体
+
 import (
     "errors"
     "io/ioutil"
-    "path"
-    "strconv"
     "strings"
 )
 
-type Config struct {
-    data map[string]string
+var G_TMCONFIG map[string]map[string]string
+
+// 内指定配置文件路径
+func ParseConfPath(path string) (err error) {
+    return parseFile(path)
 }
 
-func NewConfig() *Config {
-    return &Config{data: make(map[string]string)}
-}
-
-const emptyRunes = " \r\t\v"
-
-func (this *Config) Load(configFile string) error {
-    stream, err := ioutil.ReadFile(configFile)
+// 解析配置文件成map[section]map[key]value的结构
+func parseFile(path string) (err error) {
+    if len(path) == 0 {
+        path = "conf/conf.ini"
+    }
+    stream, err := ioutil.ReadFile(path)
     if err != nil {
         return errors.New("cannot load config file")
     }
     content := string(stream)
     lines := strings.Split(content, "\n")
+    emptyRunes := "\n\r\v\t "
+    section := ""
+    G_TMCONFIG = make(map[string]map[string]string)
     for _, line := range lines {
+        // 去掉注释
+        if sinx := strings.Index(line, "#"); sinx > 0 {
+            line = line[:sinx]
+        }
         line = strings.Trim(line, emptyRunes)
-        if line == "" || line[0] == '#' {
+        // 去除空行和注释
+        if line == "" || line[0] == '#' || line[0] == ';' || line[0:2] == "//" {
             continue
         }
-        parts := strings.SplitN(line, "=", 2)
-        if len(parts) == 2 {
-            for i, part := range parts {
-                parts[i] = strings.Trim(part, emptyRunes)
+        // 识别section
+        if line[0] == '[' && line[len(line)-1] == ']'{
+            sect := line[1:len(line)-1]
+            if _, ok := G_TMCONFIG[sect]; !ok {
+                G_TMCONFIG[sect] = make(map[string]string)
             }
-            this.data[parts[0]] = parts[1]
-        } else {
-            // 判断并处理include条目，load相应的config文件
-            includes := strings.SplitN(parts[0], " ", 2)
-            if len(includes) == 2 && strings.EqualFold(includes[0], "include") {
-                // 拼解新包含config文件的path
-                confDir := path.Dir(configFile)
-                newConfName := strings.Trim(includes[1], emptyRunes)
-                newConfPath := path.Join(confDir, newConfName)
-                // 载入include的config文件，调用Load自身
-                err := this.Load(newConfPath)
-                if err != nil {
-                    return errors.New("load include config file failed")
-                }
-                continue
-            } else {
-                return errors.New("invalid config file syntax")
-            }
+            // 更新目前解析的section
+            section = sect
+            continue
+        //识别KV
+        } else if cinx := strings.Index(line, "="); cinx > 0 &&
+            cinx < len(line) - 1 && len(section) > 0 { // 等号不能出现在行首和行尾且当前的section非空
+            key := strings.Trim(line[:cinx], emptyRunes)
+            val := strings.Trim(line[cinx + 1:], emptyRunes)
+            G_TMCONFIG[section][key] = val
         }
     }
     return nil
 }
 
-func (this *Config) GetAll() map[string]string {
-    return this.data
+func ParseConf() (err error) {
+    if len(G_TMCONFIG) > 0 {
+        return
+    }
+
+    //默认的配置文件路径
+    path := "../conf/conf.ini"
+    return parseFile(path)
 }
 
-func (this *Config) Get(key string) string {
-    if value, ok := this.data[key]; ok {
-        return value
+// 获取整个section的配置
+func GetSection(section string) map[string]string {
+    if cfm, ok := G_TMCONFIG[section]; ok {
+        return cfm
+    }
+
+    return nil
+}
+
+// 获取某个section下key的值
+func GetSectKey(section string, key string) string {
+    if val, ok := G_TMCONFIG[section][key]; ok {
+        return val
+
     }
     return ""
-}
-
-func (this *Config) GetInt(key string) int {
-    value := this.Get(key)
-    if value == "" {
-        return 0
-    }
-    result, err := strconv.Atoi(value)
-    if err != nil {
-        return 0
-    }
-    return result
-}
-
-func (this *Config) GetInt64(key string) int64 {
-    value := this.Get(key)
-    if value == "" {
-        return 0
-    }
-    result, err := strconv.ParseInt(value, 10, 64)
-    if err != nil {
-        return 0
-    }
-    return result
-}
-
-func (this *Config) GetSlice(key string, separator string) []string {
-    slice := []string{}
-    value := this.Get(key)
-    if value != "" {
-        for _, part := range strings.Split(value, separator) {
-            slice = append(slice, strings.Trim(part, emptyRunes))
-        }
-    }
-    return slice
-}
-
-func (this *Config) GetSliceInt(key string, separator string) []int {
-    slice := this.GetSlice(key, separator)
-    results := []int{}
-    for _, part := range slice {
-        result, err := strconv.Atoi(part)
-        if err != nil {
-            continue
-        }
-        results = append(results, result)
-    }
-    return results
 }
