@@ -51,7 +51,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	config "xcache/common/config"
+	config "github.com/heiyeluren/go-tmlog/tmconfig"
 )
 
 /*
@@ -527,9 +527,44 @@ func LogRun() {
 }
 
 func LogInit() {
+	//需要使用 tmconfig 库 读取日志配置文件： github.com/heiyeluren/go-tmlog/tmconfig
+	//配置文件格式参考：
+	/*
+	[log]
+	#日志文件位置 (例：/var/log/xcache.log)
+	log_notice_file_path = ../log/xcache.log
+	log_debug_file_path  = ../log/xcache.log
+	log_trace_file_path  = ../log/xcache.log
+	log_fatal_file_path     = ../log/xcache.log.wf
+	log_warning_file_path   = ../log/xcache.log.wf
+
+	#日志文件切割周期（1天：day；1小时：hour；10分钟：ten）
+	log_cron_time = day
+
+	#日志文件生存周期, 单位:天
+	log_file_life_time = 7
+
+	#日志channel队列的buffer长度，建议不要少于10240，不建议多于1024000，最长：67021478（超过这个值会无法启动）
+	log_channel_buff_size = 10240
+
+	#日志刷盘的时间间隔，单位：毫秒，建议500~5000毫秒，建议不超过30秒
+	log_flush_timer = 1000
+
+	#是否开启日志库调试模式（会在终端打印日志，1：开启，0：关闭）
+	log_debug_open = 0
+
+	#日志输出级别 (fatal:1,warning:2,notice:4,trace:8,debug:16)
+	#若只打印fatal、warning、notice，则为7 （1+2+4）
+	#若只打印所有日志，则为31 （1+2+4+8+16）
+	#若不想输出任何日志，可设为0
+	log_level = 7
+
+	*/
+
+	//从日志配置中读取信息，必须在全局已经初始化了配置信息
 	RunConfigMap := config.GetSection("log")
 	if RunConfigMap == nil {
-		panic("缺少log日志配置！")
+		panic("Error: Not find log configure information")
 	}
 	//初始化全局变量
 	if GLogV == nil {
